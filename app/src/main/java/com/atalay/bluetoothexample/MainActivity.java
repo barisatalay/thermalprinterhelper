@@ -48,10 +48,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initProvider() {
         bluetoothProvider = new BluetoothProvider(this, this);
         refreshBluetoothName();
-        bluetoothProvider
+//        bluetoothProvider
 //                .showPrinterListActivity(false)
-//                .setDeviceAddress("98:D3:31:B2:A5:AA")
-                .connect();
+//                .setDeviceAddress("98:D3:31:B2:A5:AA");
     }
 
     private void refreshBluetoothName() {
@@ -84,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void sendToPrinter() {
         bluetoothProvider
+                .connect()
                 .isTest(printer_test.isChecked())
                 .printText(printer_text.getText().toString().trim())
                 .run();

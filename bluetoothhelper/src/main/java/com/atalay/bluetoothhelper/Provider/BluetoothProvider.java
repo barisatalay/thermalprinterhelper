@@ -169,16 +169,16 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     }
 
     private void loadStream(OutputStream newOutputStream) {
-        if(outputStream == null)
-            outputStream = newOutputStream;
+        outputStream = newOutputStream;
     }
 
     private void onDestroy(){
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(mBluetoothAdapter.isDiscovering())
-                    mBluetoothAdapter.cancelDiscovery();
+                if(mBluetoothAdapter != null)
+                    if(mBluetoothAdapter.isDiscovering())
+                        mBluetoothAdapter.cancelDiscovery();
 
                 if(mSocket!= null) {
                     try {
