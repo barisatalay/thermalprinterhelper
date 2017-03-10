@@ -185,11 +185,9 @@ public class PrinterListPresenter extends BasePresenter<PrinterListView> impleme
         }
     }
 
-    public void printTest() {
-        
-    }
+    public void printTest() {}
 
-    public void pairDevice(final BluetoothDevice device) {
+    public void pairDevice(final BluetoothDevice device, final Activity mActivity) {
         UtilsDialog.createAlertDialog(mActivity)
                 .setTitle(mActivity.getString(R.string.printerlist_title))
                 .setMessage(mActivity.getString(R.string.syncbluetooth))
@@ -200,8 +198,11 @@ public class PrinterListPresenter extends BasePresenter<PrinterListView> impleme
                             Method method = device.getClass().getMethod("createBond", (Class[]) null);
                             method.invoke(device, (Object[]) null);
 
-                            if(device.getBondState() == BluetoothDevice.BOND_BONDED)
+                            if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
                                 saveDeviceInfo(device);
+                                mActivity.setResult(Activity.RESULT_OK);
+                                mActivity.finish();
+                            }
 
                         } catch (Exception e) {
                             e.printStackTrace();

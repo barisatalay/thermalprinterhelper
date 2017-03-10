@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BlueToothExample.iml" filepath="$PROJECT_DIR$/BlueToothExample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ThermalPrinterHelper.iml" filepath="$PROJECT_DIR$/ThermalPrinterHelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/bluetoothhelper/bluetoothhelper.iml" filepath="$PROJECT_DIR$/bluetoothhelper/bluetoothhelper.iml" />
     </modules>

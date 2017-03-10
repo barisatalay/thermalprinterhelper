@@ -150,7 +150,7 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
                     .setCancelable(false)
                     .show();
         }else {
-            presenter.pairDevice(device);
+            presenter.pairDevice(device, this);
         }
     }
 }

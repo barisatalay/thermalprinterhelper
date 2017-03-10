@@ -42,9 +42,9 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     private boolean haveError = false;
     private boolean showPrinterListActivity = true;
     private String printingText = "";
-
-
+    private String prefKey;
     private BluetoothCallback callback;
+    private SharedPreferences preferences;
     //endregion
 
     //region Public
@@ -56,7 +56,9 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
         this.mActivity = mActivity;
         this.callback = callback;
 
-//        loadAdapter();
+        prefKey = mActivity.getString(R.string.pref_general_printer_address);
+        preferences = PreferenceManager.getDefaultSharedPreferences(mActivity.getApplicationContext());
+
         loadDeviceAddress();
     }
 
@@ -143,8 +145,6 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     }
 
     private void loadDeviceAddress() {
-        String prefKey = mActivity.getString(R.string.pref_general_printer_address);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivity.getApplicationContext());
         deviceAddress = preferences.getString(prefKey,"");
     }
 
@@ -297,6 +297,7 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
 
 
     public String getDeviceAddress(){
+        loadDeviceAddress();
         return deviceAddress;
     }
 
