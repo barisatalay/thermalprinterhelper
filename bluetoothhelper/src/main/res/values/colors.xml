@@ -1,0 +1,7 @@
+<resources>
+    <color name="generalWhite">#fff</color>
+    <color name="imagebutton_bg">#643498db</color>
+    <color name="generalGreen">#00ff00</color>
+    <color name="listview_item_selected">#e1e1e1</color>
+    <color name="generalBlack">#000</color>
+</resources>

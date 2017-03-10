@@ -1,0 +1,7 @@
+<resources>
+	<array name="printlist_unpaireds">
+        <item>@string/unpair</item>
+        <item>@string/printerlist_test</item>
+    </array>
+
+</resources>

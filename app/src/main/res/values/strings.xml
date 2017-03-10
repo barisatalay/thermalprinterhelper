@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BlueToothExample</string>
+    <string name="action_settings">Settings</string>
+    <string name="printer_active">Active Printer :</string>
+    <string name="send">Send</string>
+    <string name="openprinterlist">Open Printer List</string>
+</resources>

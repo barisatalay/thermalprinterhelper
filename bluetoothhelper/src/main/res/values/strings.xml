@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Bluetoot Helper</string>
+
+    <string name="pref_general_printer_address" translatable="false">pref_general_printer_address</string>
+    <string name="pref_general_printer" translatable="false">pref_general_printer</string>
+
+    <string name="err_bluetooth_notenabled">Bluetooth is not enabled. Please check.</string>
+    <string name="err_bluetooth_unsyncbluetooth">Bluetooth device is unpair.</string>
+    <string name="err_permission">You have not permission for this progress</string>
+
+    <string name="printerlist_title">Printer List</string>
+    <string name="printerlist_test">Print Test</string>
+
+    <string name="reconnected">Unable to connect to device is retrying.</string>
+    <string name="connected">Bluetooth device is unpair.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+    <string name="pair_device">Are you want pair any devices?</string>
+    <string name="findedbluetooth">A new device was found.</string>
+    <string name="enabled">Enabled</string>
+    <string name="searchbluetooth">Bluetooth devices searching..</string>
+    <string name="paired">Paired</string>
+    <string name="unpair">Unpair</string>
+    <string name="unpaired">Unpaired</string>
+    <string name="refresh">Refresh</string>
+    <string name="choice_make">Make your choice</string>
+    <string name="unsyncbluetooth">Are you want unpair with this device?</string>
+    <string name="syncbluetooth">Are you want pair with this device?</string>
+</resources>

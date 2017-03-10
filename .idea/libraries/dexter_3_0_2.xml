@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="dexter-3.0.2">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/bluetoothhelper/build/intermediates/exploded-aar/com.karumi/dexter/3.0.2/res" />
+      <root url="jar://$PROJECT_DIR$/bluetoothhelper/build/intermediates/exploded-aar/com.karumi/dexter/3.0.2/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.karumi/dexter/3.0.2/de959d4978fab7c00237beb8982ceb0094ea180e/dexter-3.0.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
