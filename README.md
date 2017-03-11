@@ -9,9 +9,9 @@ My aim is to use the simplest way to print from a Bluetooth printer.
 
 ![alt tag](screenshots/3.png)
 
-![alt tag](screenshots/4.png)
+![alt tag](screenshots/4.jpg)
 
-![alt tag](screenshots/5.png)
+![alt tag](screenshots/5.jpg)
 
 
 ## Usage
