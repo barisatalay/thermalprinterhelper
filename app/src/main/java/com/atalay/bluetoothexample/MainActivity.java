@@ -2,13 +2,9 @@ package com.atalay.bluetoothexample;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -23,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button   printer_send;
     private Button   printer_openprinterlist;
     private EditText printer_text;
+    private EditText printer_copycount;
     private TextView printer_name;
     private CheckBox printer_test;
 
@@ -62,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         printer_send = (Button) findViewById(R.id.printer_send);
         printer_openprinterlist = (Button) findViewById(R.id.printer_openprinterlist);
         printer_text = (EditText) findViewById(R.id.printer_text);
+        printer_copycount = (EditText) findViewById(R.id.printer_copycount);
         printer_name = (TextView) findViewById(R.id.printer_name);
 
         printer_send.setOnClickListener(this);
@@ -84,8 +82,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void sendToPrinter() {
         bluetoothProvider
                 .connect()
+                .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
                 .isTest(printer_test.isChecked())
-                .printText(printer_text.getText().toString().trim())
+                .printText("<br/> www.santsg.com<br/> Tour Op : ATALAY TOUR<br/> Booked : 23.04.2016<br/> Pnr No.: TW - 519<br/> ______________________________<br/> Tour<br/> Finike TOUR<br/> ANTALYA CITY<br/> On : 23.04.2016 Pick Up : 19:30<br/> Passengers<br/> BARIS ATALAY<br/> Adult : 2 Child: 0 Infant: 0<br/> ______________________________<br/> Presa Di Finica<br/> Room No.:  <br/> Region : ANTALYA CITY<br/> 00:00<br/> ______________________________<br/> Guide : MAHMUT TUNCER<br/> Remark : <br/> Price : 100 EUR <br/> Tour Description : <br/><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />")
+//                .printText(printer_text.getText().toString().trim())
                 .run();
     }
 

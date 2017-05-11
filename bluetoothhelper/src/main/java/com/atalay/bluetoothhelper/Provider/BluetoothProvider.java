@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import com.atalay.bluetoothhelper.Common.PrinterCommands;
 import com.atalay.bluetoothhelper.Common.UtilsDialog;
 import com.atalay.bluetoothhelper.Common.UtilsGeneral;
+import com.atalay.bluetoothhelper.Common.UtilsHtml;
 import com.atalay.bluetoothhelper.Common.UtilsPermission;
 import com.atalay.bluetoothhelper.Model.BluetoothCallback;
 import com.atalay.bluetoothhelper.Model.PermissionCallback;
@@ -45,6 +46,7 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     private String prefKey;
     private BluetoothCallback callback;
     private SharedPreferences preferences;
+    private int copyCount = 1;
     //endregion
 
     //region Public
@@ -169,7 +171,8 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     }
 
     private void loadStream(OutputStream newOutputStream) {
-        outputStream = newOutputStream;
+        if(outputStream == null)
+            outputStream = newOutputStream;
     }
 
     private void onDestroy(){
@@ -232,23 +235,20 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
         String newString = "";
 
         if(!isTest) {
-            newString = prepareSendingData();
-            newString = someHtmlDecode(newString);
+            newString = UtilsHtml.brToLB(printingText, 5);
+            newString = UtilsHtml.clearHtmlTags(newString);
+            newString = UtilsHtml.HtmlDecode(newString);
+
         }else{
-            StringBuffer bufer = new StringBuffer();
-            bufer.append("0123456789").append("\n")
-                .append("abcdefghijklmnoprstuvyz").append("\n")
-                .append("ABCDEFGHIJKLMNOPRSTUVYZ").append("\n")
-                .append("/-*?!'#+%&{}[]()").append("\n");
-            newString = bufer.toString();
+            newString = prepareTestData();
         }
 
         try {
-            outputStream.write(newString.getBytes("UTF-8"));
+            for(int i=0;i<copyCount;i++) {
+                outputStream.write(newString.getBytes("UTF-8"));
 
-            Thread.sleep(1000);
-
-            setBreakLine(5);
+                Thread.sleep(1000);
+            }
 
             outputStream.flush();
         } catch (IOException e) {
@@ -260,41 +260,14 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
         return true;
     }
 
-    private String someHtmlDecode(String newString) {
-        String result = newString;
-
-        if(newString == null || newString.isEmpty()) return "";
-
-        result = result.replace("#015;","");
-        result = result.replace("#012;","");
-        result = result.replace("&amp;","&");
-        result = result.replace("&","{AND}");
-        result = TextUtils.htmlEncode(result);
-        result = result.replace("{AND}","&");
-        return result;
+    private String prepareTestData() {
+        StringBuffer bufer = new StringBuffer();
+        bufer.append("0123456789").append("<br/>")
+                .append("abcdefghijklmnoprstuvyz").append("<br/>")
+                .append("ABCDEFGHIJKLMNOPRSTUVYZ").append("<br/>")
+                .append("/-*?!'#+%&{}[]()").append("<br/>");
+        return bufer.toString();
     }
-
-    private String prepareSendingData() {
-        StringBuffer stringBuffer = new StringBuffer();
-        String seperatorItem = "<br />";
-        String Temp = printingText.replace("<br/>",seperatorItem);
-
-        if(printingText.indexOf(seperatorItem) > -1){
-            while(Temp.indexOf(seperatorItem) > -1){
-                int endIndex = Temp.indexOf(seperatorItem);// + seperatorItem.length();
-                String copyStr = Temp.substring(0, endIndex);
-                if(!copyStr.isEmpty())
-                    stringBuffer.append(copyStr).append("\n");
-                Temp = Temp.substring(copyStr.length() + seperatorItem.length(), Temp.length());
-            }
-//            stringBuffer.append(waitForSend);
-
-        }else
-            stringBuffer.append(printingText);
-
-        return stringBuffer.toString(); //.append("\n").append("\n").append("\n").append("\n").append("\n").toString();
-    }
-
 
     public String getDeviceAddress(){
         loadDeviceAddress();
@@ -337,6 +310,12 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
      */
     public BluetoothProvider isTest(boolean value){
         this.isTest = value;
+
+        return this;
+    }
+
+    public BluetoothProvider setCopyCount(int copyCount){
+        this.copyCount = copyCount;
 
         return this;
     }
