@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
  */
 
 public class UtilsHtml {
-
     /**
      * <br /> gördüğü yerleri alt satıra atacaktır.
      *
@@ -22,7 +21,7 @@ public class UtilsHtml {
         String seperatorItem = "<br />";
         String Temp = oldStr.replace("<br/>",seperatorItem);
 
-        if(oldStr.indexOf(seperatorItem) > -1){
+        if(Temp.indexOf(seperatorItem) > -1){
             while(Temp.indexOf(seperatorItem) > -1){
                 int endIndex = Temp.indexOf(seperatorItem);// + seperatorItem.length();
                 String copyStr = Temp.substring(0, endIndex);
@@ -39,7 +38,6 @@ public class UtilsHtml {
             stringBuffer.append("\n");
         }
 
-        //5 Satır boşluk bıraktım
         return stringBuffer.toString();
     }
 

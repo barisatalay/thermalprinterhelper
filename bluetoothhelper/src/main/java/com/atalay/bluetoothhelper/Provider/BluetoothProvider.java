@@ -8,13 +8,19 @@ import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 
 import com.atalay.bluetoothhelper.Common.PrinterCommands;
 import com.atalay.bluetoothhelper.Common.UtilsDialog;
 import com.atalay.bluetoothhelper.Common.UtilsGeneral;
 import com.atalay.bluetoothhelper.Common.UtilsHtml;
+import com.atalay.bluetoothhelper.Common.UtilsImage;
 import com.atalay.bluetoothhelper.Common.UtilsPermission;
 import com.atalay.bluetoothhelper.Model.BluetoothCallback;
 import com.atalay.bluetoothhelper.Model.PermissionCallback;
@@ -26,11 +32,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import static android.R.attr.width;
+
 /**
  * Created by baris on 9.03.2017.
  */
 
-public class BluetoothProvider extends Thread implements PermissionCallback {
+public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Void, Void> implements PermissionCallback {
     //region Private
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private BluetoothAdapter mBluetoothAdapter;
@@ -43,14 +51,17 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     private boolean haveError = false;
     private boolean showPrinterListActivity = true;
     private String printingText = "";
-    private String prefKey;
+    private byte[] printingByte ;
     private BluetoothCallback callback;
-    private SharedPreferences preferences;
     private int copyCount = 1;
+    private Bitmap imageBitmap = null;
+
+
+    public enum PrintType{TEXT, IMAGE, BYTE}
     //endregion
 
     //region Public
-
+    public boolean bluetoothConEnable;
     //endregion
 
 
@@ -58,10 +69,9 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
         this.mActivity = mActivity;
         this.callback = callback;
 
-        prefKey = mActivity.getString(R.string.pref_general_printer_address);
-        preferences = PreferenceManager.getDefaultSharedPreferences(mActivity.getApplicationContext());
+        getDeviceAddress();
+//        createBluetoothReceiver();
 
-        loadDeviceAddress();
     }
 
     public BluetoothProvider connect(){
@@ -123,20 +133,26 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
         if(pairedDevice != null) {
             try {
                 mSocket = pairedDevice.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 mSocket.connect();
 
                 loadStream(mSocket.getOutputStream());
             } catch (IOException e) {
 
-                sendError(R.string.reconnected,false);
+                //sendError(R.string.reconnected,false);
 
                 try {
                     mSocket =(BluetoothSocket) pairedDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(pairedDevice,1);
+                    Thread.sleep(1000);
                     mSocket.connect();
 
                     loadStream(mSocket.getOutputStream());
 
-                    sendError(R.string.connected,false);
+                    //sendError(R.string.connected,false);
                 } catch (Exception  e1) {
                     sendError(e1.getMessage(),false);
                 }
@@ -144,10 +160,6 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
         }else{
             sendError(R.string.err_bluetooth_unsyncbluetooth, true);
         }
-    }
-
-    private void loadDeviceAddress() {
-        deviceAddress = preferences.getString(prefKey,"");
     }
 
     private void sendError(int resourceId, boolean important){
@@ -171,33 +183,27 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     }
 
     private void loadStream(OutputStream newOutputStream) {
-        if(outputStream == null)
-            outputStream = newOutputStream;
+        outputStream = newOutputStream;
     }
 
     private void onDestroy(){
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(mBluetoothAdapter != null)
-                    if(mBluetoothAdapter.isDiscovering())
-                        mBluetoothAdapter.cancelDiscovery();
+        if(mBluetoothAdapter != null)
+            if(mBluetoothAdapter.isDiscovering())
+                mBluetoothAdapter.cancelDiscovery();
 
-                if(mSocket!= null) {
-                    try {
-                        if(outputStream != null)
-                            outputStream.close();
-                        mSocket.close();
-                        mSocket = null;
-                    } catch (IOException e) {
-                        sendError(e.getMessage(), true);
-                    }
-                }
-
-                if(callback != null)
-                    callback.onSuccessful();
+        if(mSocket!= null) {
+            try {
+                if(outputStream != null)
+                    outputStream.close();
+                mSocket.close();
+                mSocket = null;
+            } catch (IOException e) {
+                sendError(e.getMessage(), true);
             }
-        });
+        }
+
+        if(callback != null)
+            callback.onSuccessful();
     }
 
     @Override
@@ -208,40 +214,26 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     @Override
     public void denied(MultiplePermissionsReport report) {}
 
+    /**
+     * Use @print
+     * */
+    @Deprecated
     public BluetoothProvider printText(String message) {
         printingText = message;
 
         return this;
     }
 
-    @Override
-    public void run() {
-        try {
-            if (haveError)
-                return;
-
-            sendPrint();
-        }finally {
-            onDestroy();
-        }
-    }
-
-    private boolean sendPrint() {
-        if(!UtilsGeneral.bluetoothIsEnabled()){
-            sendError(R.string.err_bluetooth_notenabled, true);
-            return false;
-        }
-
+    private boolean printText() {
         String newString = "";
 
-        if(!isTest) {
-            newString = UtilsHtml.brToLB(printingText, 5);
-            newString = UtilsHtml.clearHtmlTags(newString);
-            newString = UtilsHtml.HtmlDecode(newString);
-
-        }else{
+        if(!isTest)
+            newString = printingText;
+        else
             newString = prepareTestData();
-        }
+
+        newString = UtilsHtml.brToLB(newString, 5);
+        newString = UtilsHtml.runAllHtmMethod(newString);
 
         try {
             for(int i=0;i<copyCount;i++) {
@@ -252,9 +244,11 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
 
             outputStream.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            if(e.getMessage() != null)
+                sendError(e.getMessage(), true);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            if(e.getMessage() != null)
+                sendError(e.getMessage(), true);
         }
 
         return true;
@@ -270,7 +264,9 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
     }
 
     public String getDeviceAddress(){
-        loadDeviceAddress();
+        String prefKey = mActivity.getString(R.string.pref_general_printer_address);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivity.getApplicationContext());
+        deviceAddress = preferences.getString(prefKey,"");
         return deviceAddress;
     }
 
@@ -319,4 +315,103 @@ public class BluetoothProvider extends Thread implements PermissionCallback {
 
         return this;
     }
+
+    @Override
+    protected Void doInBackground(PrintType... params) {
+        if (haveError)
+            return null;
+
+        if(!UtilsGeneral.bluetoothIsEnabled()){
+            sendError(R.string.err_bluetooth_notenabled, true);
+            return null;
+        }
+
+        switch (params[0]){
+            case TEXT: printText(); break;
+            case IMAGE: printImage(); break;
+            case BYTE: printByte(); break;
+        }
+
+        return null;
+    }
+
+    private void printByte() {
+        if(printingByte == null || printingByte.length == 0)
+            return;
+
+        try {
+            for(int i=0;i<copyCount;i++) {
+                outputStream.write(printingByte);
+
+                Thread.sleep(1000);
+            }
+
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printImage() {
+        Bitmap newBitmap = null;
+
+        if(!printingText.isEmpty())
+            newBitmap = UtilsImage.base64ToBitmap(printingText);
+        else
+            newBitmap = imageBitmap;
+
+        if(newBitmap != null){
+            byte[] command = UtilsImage.decodeBitmap(newBitmap);
+            try {
+                for(int i=0;i<copyCount;i++) {
+                    outputStream.write(command);
+
+                    Thread.sleep(1000);
+                }
+                outputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onPostExecute(Void result) {
+        super.onPostExecute(result);
+        onDestroy();
+    }
+
+    public BluetoothProvider setImage(Bitmap bitmap){
+        this.imageBitmap = bitmap;
+
+        return this;
+    }
+
+    public Bitmap getImage(){
+        return this.imageBitmap;
+    }
+
+    public BluetoothProvider print(String text) {
+        printingText = text;
+        return this;
+    }
+
+    public BluetoothProvider print(byte[] printingBytes) {
+        this.printingByte = printingBytes;
+
+        return this;
+    }
+
+    /**
+     * For very long text. Examp: Base64Image
+     * */
+    public BluetoothProvider printAddText(String text) {
+        printingText += text;
+        return this;
+    }
+
 }

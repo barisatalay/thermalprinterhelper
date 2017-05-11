@@ -60,6 +60,11 @@
         android:layout_height="wrap_content"
         android:text="@string/send"/>
     <Button
+        android:id="@+id/printer_sendImg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sendImg"/>
+    <Button
         android:id="@+id/printer_openprinterlist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

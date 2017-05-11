@@ -11,12 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.atalay.bluetoothhelper.Common.PrinterCommands;
 import com.atalay.bluetoothhelper.Model.BluetoothCallback;
 import com.atalay.bluetoothhelper.Provider.BluetoothProvider;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, BluetoothCallback {
 
     private Button   printer_send;
+    private Button   printer_sendImg;
     private Button   printer_openprinterlist;
     private EditText printer_text;
     private EditText printer_copycount;
@@ -57,12 +59,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initUi() {
         printer_test = (CheckBox) findViewById(R.id.printer_test);
         printer_send = (Button) findViewById(R.id.printer_send);
+        printer_sendImg = (Button) findViewById(R.id.printer_sendImg);
         printer_openprinterlist = (Button) findViewById(R.id.printer_openprinterlist);
         printer_text = (EditText) findViewById(R.id.printer_text);
         printer_copycount = (EditText) findViewById(R.id.printer_copycount);
         printer_name = (TextView) findViewById(R.id.printer_name);
 
         printer_send.setOnClickListener(this);
+        printer_sendImg.setOnClickListener(this);
         printer_openprinterlist.setOnClickListener(this);
     }
 
@@ -71,8 +75,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.printer_openprinterlist: openList(); break;
             case R.id.printer_send: sendToPrinter();break;
+            case R.id.printer_sendImg: sendImageToPrinter();break;
         }
 
+    }
+
+    private void sendImageToPrinter() {
+        initProvider();
+        bluetoothProvider
+                .connect()
+                .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
+                .printAddText("...")//Any base64Image
+                .execute(BluetoothProvider.PrintType.IMAGE);
+    }
+
+    private void sendByteToPrinter(){
+        initProvider();
+        bluetoothProvider
+                .connect()
+                .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
+                .isTest(printer_test.isChecked())
+                .print(PrinterCommands.FEED_LINE)
+                .execute(BluetoothProvider.PrintType.BYTE);
     }
 
     private void openList() {
@@ -80,13 +104,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void sendToPrinter() {
+        initProvider();
         bluetoothProvider
                 .connect()
                 .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
                 .isTest(printer_test.isChecked())
-                .printText("<br/> www.santsg.com<br/> Tour Op : ATALAY TOUR<br/> Booked : 23.04.2016<br/> Pnr No.: TW - 519<br/> ______________________________<br/> Tour<br/> Finike TOUR<br/> ANTALYA CITY<br/> On : 23.04.2016 Pick Up : 19:30<br/> Passengers<br/> BARIS ATALAY<br/> Adult : 2 Child: 0 Infant: 0<br/> ______________________________<br/> Presa Di Finica<br/> Room No.:  <br/> Region : ANTALYA CITY<br/> 00:00<br/> ______________________________<br/> Guide : MAHMUT TUNCER<br/> Remark : <br/> Price : 100 EUR <br/> Tour Description : <br/><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />")
-//                .printText(printer_text.getText().toString().trim())
-                .run();
+                .print(printer_text.getText().toString().trim())
+                .execute(BluetoothProvider.PrintType.TEXT);
     }
 
     @Override
