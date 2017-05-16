@@ -5,6 +5,10 @@ My aim is to use the simplest way to print from a Bluetooth printer.
 
 #Screen Shots
 
+Works only on supported printers
+
+![alt tag](screenshots/6.jpg)
+
 ![alt tag](screenshots/1.png)
 
 ![alt tag](screenshots/2.png)
@@ -56,14 +60,23 @@ Code to connect to the terminal
 
 If you want print test page
 ```java
-   //This value default false
-   bluetoothProvider.isTest(true);
+   bluetoothProvider.printText(bluetoothProvider.prepareTestData())
+```
+
+Define the base64Image to print
+```java
+   bluetoothProvider.printImageText("...")
 ```
 
 Define the text to print
 ```java
+   bluetoothProvider.printText("This is PRINT EXAMPLE!!!")
+```
+
+Define the byte array to print
+```java
    //This value default false
-   bluetoothProvider.printText("This is PRINT TEST!!!")
+   bluetoothProvider.printByteArray(PrinterCommands.FEED_LINE_2)
 ```
 
 If you do not want to open the terminal device screen use this method
