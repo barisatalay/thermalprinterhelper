@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/barisatalay/thermalprinterhelper.svg)](https://jitpack.io/#barisatalay/thermalprinterhelper)
+
 # Thermal Printer Helper
 My aim is to use the simplest way to print from a Bluetooth printer.
 
@@ -31,7 +33,7 @@ allprojects {
 Add dependencies in build.gradle.
 ```groovy
     dependencies {
-       compile 'com.github.barisatalay:thermalprinterhelper:v1.0.1'
+       compile 'com.github.barisatalay:thermalprinterhelper:v1.2.1'
     }
 ```
 
