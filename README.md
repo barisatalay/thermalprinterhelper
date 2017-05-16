@@ -65,6 +65,7 @@ If you want print test page
 
 Define the base64Image to print
 ```java
+   //Works only on supported printers
    bluetoothProvider.printImageText("...")
 ```
 
