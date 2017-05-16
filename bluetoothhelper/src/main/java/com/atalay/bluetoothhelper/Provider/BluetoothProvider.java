@@ -9,10 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
@@ -30,15 +26,17 @@ import com.karumi.dexter.MultiplePermissionsReport;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
-
-import static android.R.attr.width;
 
 /**
  * Created by baris on 9.03.2017.
  */
 
-public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Void, Void> implements PermissionCallback {
+public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements PermissionCallback {
     //region Private
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private BluetoothAdapter mBluetoothAdapter;
@@ -47,21 +45,18 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
     private BluetoothSocket mSocket;
     private OutputStream outputStream;
     private String deviceAddress = "";
-    private boolean isTest = false;
     private boolean haveError = false;
     private boolean showPrinterListActivity = true;
-    private String printingText = "";
+//    private String printingText = "";
     private byte[] printingByte ;
+//    private List<Byte> printingByte ;
     private BluetoothCallback callback;
     private int copyCount = 1;
     private Bitmap imageBitmap = null;
 
-
-    public enum PrintType{TEXT, IMAGE, BYTE}
     //endregion
 
     //region Public
-    public boolean bluetoothConEnable;
     //endregion
 
 
@@ -70,8 +65,6 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
         this.callback = callback;
 
         getDeviceAddress();
-//        createBluetoothReceiver();
-
     }
 
     public BluetoothProvider connect(){
@@ -134,7 +127,7 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
             try {
                 mSocket = pairedDevice.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(700);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -147,7 +140,7 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
 
                 try {
                     mSocket =(BluetoothSocket) pairedDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(pairedDevice,1);
-                    Thread.sleep(1000);
+                    Thread.sleep(700);
                     mSocket.connect();
 
                     loadStream(mSocket.getOutputStream());
@@ -155,6 +148,7 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
                     //sendError(R.string.connected,false);
                 } catch (Exception  e1) {
                     sendError(e1.getMessage(),false);
+                    haveError = true;
                 }
             }
         }else{
@@ -214,47 +208,7 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
     @Override
     public void denied(MultiplePermissionsReport report) {}
 
-    /**
-     * Use @print
-     * */
-    @Deprecated
-    public BluetoothProvider printText(String message) {
-        printingText = message;
-
-        return this;
-    }
-
-    private boolean printText() {
-        String newString = "";
-
-        if(!isTest)
-            newString = printingText;
-        else
-            newString = prepareTestData();
-
-        newString = UtilsHtml.brToLB(newString, 5);
-        newString = UtilsHtml.runAllHtmMethod(newString);
-
-        try {
-            for(int i=0;i<copyCount;i++) {
-                outputStream.write(newString.getBytes("UTF-8"));
-
-                Thread.sleep(1000);
-            }
-
-            outputStream.flush();
-        } catch (IOException e) {
-            if(e.getMessage() != null)
-                sendError(e.getMessage(), true);
-        } catch (InterruptedException e) {
-            if(e.getMessage() != null)
-                sendError(e.getMessage(), true);
-        }
-
-        return true;
-    }
-
-    private String prepareTestData() {
+    public String prepareTestData() {
         StringBuffer bufer = new StringBuffer();
         bufer.append("0123456789").append("<br/>")
                 .append("abcdefghijklmnoprstuvyz").append("<br/>")
@@ -291,25 +245,6 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
         return this;
     }
 
-    private void setBreakLine(int count) {
-        for(int i=0;i<count;i++) {
-            try {
-                outputStream.write(PrinterCommands.FEED_LINE);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * If you want to print test page send true value.
-     */
-    public BluetoothProvider isTest(boolean value){
-        this.isTest = value;
-
-        return this;
-    }
-
     public BluetoothProvider setCopyCount(int copyCount){
         this.copyCount = copyCount;
 
@@ -317,66 +252,50 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
     }
 
     @Override
-    protected Void doInBackground(PrintType... params) {
-        if (haveError)
-            return null;
-
-        if(!UtilsGeneral.bluetoothIsEnabled()){
-            sendError(R.string.err_bluetooth_notenabled, true);
-            return null;
-        }
-
-        switch (params[0]){
-            case TEXT: printText(); break;
-            case IMAGE: printImage(); break;
-            case BYTE: printByte(); break;
-        }
+    protected Void doInBackground(Void... params) {
+        printProcess();
 
         return null;
     }
 
-    private void printByte() {
-        if(printingByte == null || printingByte.length == 0)
+    private void printProcess() {
+        if (haveError)
             return;
+
+        if(!UtilsGeneral.bluetoothIsEnabled()){
+            sendError(R.string.err_bluetooth_notenabled, true);
+            return;
+        }
+
+        if(printingByte == null){
+            return;
+        }
 
         try {
             for(int i=0;i<copyCount;i++) {
                 outputStream.write(printingByte);
+
+                if(copyCount>1)
+                    setBreakLine(2);
 
                 Thread.sleep(1000);
             }
 
             outputStream.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            if(e.getMessage() != null)
+                sendError(e.getMessage(), true);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            if(e.getMessage() != null)
+                sendError(e.getMessage(), true);
+        }catch (Exception e){
+            if(e.getMessage() != null)
+                sendError(e.getMessage(), true);
         }
     }
 
-    private void printImage() {
-        Bitmap newBitmap = null;
-
-        if(!printingText.isEmpty())
-            newBitmap = UtilsImage.base64ToBitmap(printingText);
-        else
-            newBitmap = imageBitmap;
-
-        if(newBitmap != null){
-            byte[] command = UtilsImage.decodeBitmap(newBitmap);
-            try {
-                for(int i=0;i<copyCount;i++) {
-                    outputStream.write(command);
-
-                    Thread.sleep(1000);
-                }
-                outputStream.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public void printByte(byte byteItem) {
+        printingByte = UtilsGeneral.bytePush(printingByte,byteItem);
     }
 
     @Override
@@ -395,23 +314,59 @@ public class BluetoothProvider extends AsyncTask<BluetoothProvider.PrintType, Vo
         return this.imageBitmap;
     }
 
-    public BluetoothProvider print(String text) {
-        printingText = text;
+    public BluetoothProvider printText(String text) {
+        if(text == null || text.isEmpty())
+            return this;
+
+        String newString = UtilsHtml.brToLB(text,0);
+        newString = UtilsHtml.runAllHtmMethod(newString);
+        try {
+            printingByte = UtilsGeneral.bytePushAll(printingByte,newString.getBytes("UTF-8"));
+            printByteArray(PrinterCommands.FEED_LINE_2);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         return this;
     }
 
-    public BluetoothProvider print(byte[] printingBytes) {
-        this.printingByte = printingBytes;
+
+    public BluetoothProvider printImageText(String text) {
+        if(text == null || text.isEmpty())
+            return this;
+
+        printImage(UtilsImage.base64ToBitmap(text));
 
         return this;
     }
 
-    /**
-     * For very long text. Examp: Base64Image
-     * */
-    public BluetoothProvider printAddText(String text) {
-        printingText += text;
+    public BluetoothProvider printImage(Bitmap imageBitmap) {
+        if(imageBitmap == null)
+            return this;
+
+        if(imageBitmap != null){
+            byte[] command = UtilsImage.decodeBitmap(imageBitmap);
+            printingByte = UtilsGeneral.bytePushAll(printingByte,command);
+        }
         return this;
+    }
+
+    public BluetoothProvider printByteArray(byte[] printingBytes) {
+        if(printingBytes == null)
+            return this;
+
+        printingByte = UtilsGeneral.bytePushAll(this.printingByte,printingBytes);
+
+        return this;
+    }
+
+    private void setBreakLine(int count) {
+        for(int i=0;i<count;i++) {
+            try {
+                outputStream.write(PrinterCommands.FEED_LINE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

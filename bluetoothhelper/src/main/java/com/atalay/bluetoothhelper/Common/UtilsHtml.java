@@ -48,7 +48,6 @@ public class UtilsHtml {
 
 
         Pattern REMOVE_TAGS = Pattern.compile("<[^>]*>");
-//        Pattern REMOVE_TAGS = Pattern.compile("<.+?>");
 
         Matcher m = REMOVE_TAGS.matcher(oldStr);
         return m.replaceAll("");

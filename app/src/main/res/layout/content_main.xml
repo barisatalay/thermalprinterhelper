@@ -27,12 +27,6 @@
         android:layout_height="100dp"
         android:hint="Write message here.."/>
 
-    <CheckBox
-        android:id="@+id/printer_test"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/printerlist_test"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

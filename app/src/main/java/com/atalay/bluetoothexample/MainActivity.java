@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText printer_text;
     private EditText printer_copycount;
     private TextView printer_name;
-    private CheckBox printer_test;
 
     BluetoothProvider bluetoothProvider;
 
@@ -57,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initUi() {
-        printer_test = (CheckBox) findViewById(R.id.printer_test);
         printer_send = (Button) findViewById(R.id.printer_send);
         printer_sendImg = (Button) findViewById(R.id.printer_sendImg);
         printer_openprinterlist = (Button) findViewById(R.id.printer_openprinterlist);
@@ -82,11 +80,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void sendImageToPrinter() {
         initProvider();
+
+        String base64Str = "";
+
         bluetoothProvider
                 .connect()
                 .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
-                .printAddText("...")//Any base64Image
-                .execute(BluetoothProvider.PrintType.IMAGE);
+//                .printImageText("...")//Any base64Image
+                .printImageText(base64Str)//Any base64Image
+                .printByteArray(PrinterCommands.FEED_LINE_2)
+                .printByteArray(PrinterCommands.FEED_LINE_2)
+                .printByteArray(PrinterCommands.FEED_LINE_2)
+                .printText(bluetoothProvider.prepareTestData())
+                .execute();
     }
 
     private void sendByteToPrinter(){
@@ -94,9 +100,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetoothProvider
                 .connect()
                 .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
-                .isTest(printer_test.isChecked())
-                .print(PrinterCommands.FEED_LINE)
-                .execute(BluetoothProvider.PrintType.BYTE);
+                .printByteArray(PrinterCommands.FEED_LINE_2)
+                .execute();
     }
 
     private void openList() {
@@ -108,9 +113,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetoothProvider
                 .connect()
                 .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
-                .isTest(printer_test.isChecked())
-                .print(printer_text.getText().toString().trim())
-                .execute(BluetoothProvider.PrintType.TEXT);
+                .printText(printer_text.getText().toString().trim())
+//                .print(printer_text.getText().toString().trim())
+                .execute();
     }
 
     @Override
