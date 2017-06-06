@@ -37,7 +37,7 @@ allprojects {
 Add dependencies in build.gradle.
 ```groovy
     dependencies {
-       compile 'com.github.barisatalay:thermalprinterhelper:v1.2.1'
+       compile 'com.github.barisatalay:thermalprinterhelper:v1.2.2'
     }
 ```
 
