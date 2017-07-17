@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .printByteArray(PrinterCommands.FEED_LINE_2)
                 .printByteArray(PrinterCommands.FEED_LINE_2)
                 .printByteArray(PrinterCommands.FEED_LINE_2)
+                .printByteArray(PrinterCommands.DEFAULT_SETTINGS)
                 .printText(bluetoothProvider.prepareTestData())
                 .execute();
     }
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetoothProvider
                 .connect()
                 .setCopyCount(Integer.valueOf(printer_copycount.getText().toString().trim()))
+                .printByteArray(PrinterCommands.DEFAULT_SETTINGS)
                 .printText(printer_text.getText().toString().trim())
 //                .print(printer_text.getText().toString().trim())
                 .execute();
