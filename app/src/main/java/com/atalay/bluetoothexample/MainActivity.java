@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.printer_send: sendToPrinter();break;
             case R.id.printer_sendImg: sendImageToPrinter();break;
         }
-
     }
 
     private void sendImageToPrinter() {

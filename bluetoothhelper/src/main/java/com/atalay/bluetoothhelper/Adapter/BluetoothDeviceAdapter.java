@@ -35,7 +35,7 @@ public class BluetoothDeviceAdapter extends ArrayAdapter<BluetoothDevice> {
     public BluetoothDeviceAdapter(Activity context, List<BluetoothDevice> list) {
         super(context, R.layout.item_bluetoothdevice , list);
         this.context = context;
-        this.allData = new ArrayList<BluetoothDevice>();
+        allData = new ArrayList<BluetoothDevice>();
         this.selectedList = new ArrayList<Integer>();
         if(list != null)
             allData.addAll(list);

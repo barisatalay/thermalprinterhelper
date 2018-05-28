@@ -139,7 +139,7 @@ public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements Pe
                 //sendError(R.string.reconnected,false);
 
                 try {
-                    mSocket =(BluetoothSocket) pairedDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(pairedDevice,1);
+                    mSocket =(BluetoothSocket) pairedDevice.getClass().getMethod("createRfcommSocket", int.class).invoke(pairedDevice,1);
                     Thread.sleep(700);
                     mSocket.connect();
 

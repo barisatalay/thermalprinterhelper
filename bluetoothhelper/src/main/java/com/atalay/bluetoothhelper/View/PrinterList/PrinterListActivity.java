@@ -32,7 +32,6 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
 
     private TextView     printerlist_active;
     private ProgressBar  printerlist_progress;
-    private LinearLayout printerlist_content;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +46,7 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
         presenter = new PrinterListPresenter(this);
         presenter.attachView(this);
 
-        printerlist_active.setText("Active Printer: " + (presenter.getActivePrinter().isEmpty()?"NONE":presenter.getActivePrinter()));
+        printerlist_active.setText("Last Selected Printer: " + (presenter.getActivePrinter().isEmpty()?"NONE":presenter.getActivePrinter()));
     }
 
     private void initUi() {
@@ -60,7 +59,6 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
 
         printerlist_active = (TextView) findViewById(R.id.printerlist_active);
         printerlist_progress = (ProgressBar) findViewById(R.id.printerlist_progress);
-        printerlist_content = (LinearLayout) findViewById(R.id.printerlist_content);
 
         printerlist_progress.setVisibility(View.GONE);
 
@@ -99,21 +97,18 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
 
     @Override
     public void loadDevices(BluetoothDeviceAdapter bluetoothDeviceAdapter) {
-
         printerlist_list.setAdapter(bluetoothDeviceAdapter);
     }
 
     @Override
     public void bluetoothSearchStarted() {
         toolbar_refresh.setEnabled(false);
-        printerlist_content.setVisibility(View.VISIBLE);
-        printerlist_active.setVisibility(View.GONE);
         printerlist_progress.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void bluetoothSearchEnded() {
-        printerlist_content.setVisibility(View.GONE);
+        printerlist_progress.setVisibility(View.GONE);
         toolbar_refresh.setEnabled(true);
     }
 
@@ -133,24 +128,7 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
         BluetoothDeviceAdapter deviceAdapter = ((BluetoothDeviceAdapter) parent.getAdapter());
         final BluetoothDevice device =  deviceAdapter.getItem(position);
 
-        if (device.getBondState() == BluetoothDevice.BOND_BONDED && !presenter.getActivePrinter().isEmpty()) {
-            final String[] titles = getResources().getStringArray(R.array.printlist_unpaireds);
-            UtilsDialog.createAlertDialog(this)
-                    .setTitle(R.string.choice_make)
-                    .setSingleChoiceItems(titles, -1, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which){
-                                case 0: presenter.unpairDialog(device); break;
-                                case 1: presenter.printTest(); break;
-                            }
-                            dialog.dismiss();
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
-        }else {
-            presenter.pairDevice(device, this);
-        }
+        presenter.saveDeviceInfo(device);
+        finish();
     }
 }

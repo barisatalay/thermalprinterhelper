@@ -15,11 +15,8 @@ public class UtilsGeneral {
         if (mBluetoothAdapter == null) {
             return false;
         } else {
-            if (!mBluetoothAdapter.isEnabled()) {
-                return false;
-            }
+            return mBluetoothAdapter.isEnabled();
         }
-        return true;
     }
 
     public static byte[] bytePush(byte[] array, byte push) {
