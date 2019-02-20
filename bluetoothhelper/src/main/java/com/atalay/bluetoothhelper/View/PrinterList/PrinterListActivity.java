@@ -2,6 +2,7 @@ package com.atalay.bluetoothhelper.View.PrinterList;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -32,12 +33,14 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
 
     private TextView     printerlist_active;
     private ProgressBar  printerlist_progress;
+    private int requestCode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_printerlist);
-
+        if (getIntent().hasExtra("RequestCode"))
+            requestCode = getIntent().getExtras().getInt("RequestCode");
         initUi();
         initPresenter();
     }
@@ -118,7 +121,6 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
         if (i == R.id.toolbar_refresh) {
             presenter.refreshBluetooth();
         } else if (i == R.id.toolbar_left_button) {
-            setResult(RESULT_OK);
             finish();
         }
     }
@@ -127,8 +129,13 @@ public class PrinterListActivity extends AppCompatActivity implements PrinterLis
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         BluetoothDeviceAdapter deviceAdapter = ((BluetoothDeviceAdapter) parent.getAdapter());
         final BluetoothDevice device =  deviceAdapter.getItem(position);
-
-        presenter.saveDeviceInfo(device);
+//        refreshAdapter();
+//        presenter.saveDeviceInfo(device);
+        Intent data = new Intent();
+        data.putExtra("RequestCode", requestCode);
+        data.putExtra("BluetoothName", device.getName());
+        data.putExtra("BluetoothAddress", device.getAddress());
+        setResult(RESULT_OK, data);
         finish();
     }
 }

@@ -100,7 +100,7 @@ public class PrinterListPresenter extends BasePresenter<PrinterListView> impleme
 //                if(getActivePrinter().isEmpty())
 //                    unpairDevice(device);
 
-                mDeviceList.add(device);
+                getDeviceList().add(device);
                 if (getView() != null)
                     getView().showToast(mActivity.getString(R.string.findedbluetooth));
                 Log.i(TAG, device.getName() + "\n" + device.getAddress());
@@ -122,7 +122,6 @@ public class PrinterListPresenter extends BasePresenter<PrinterListView> impleme
                 /*
                 * Bluetooth cihaz aramaya başladığında buraya girecek.
                 * */
-                mDeviceList = new ArrayList<BluetoothDevice>();
 
                 if (getView() != null) {
                     getView().bluetoothSearchStarted();
@@ -135,7 +134,7 @@ public class PrinterListPresenter extends BasePresenter<PrinterListView> impleme
                 * */
 
                 if (getView() != null) {
-                    getView().loadDevices(new BluetoothDeviceAdapter(mActivity, mDeviceList));
+                    getView().loadDevices(new BluetoothDeviceAdapter(mActivity, getDeviceList()));
                     getView().bluetoothSearchEnded();
                 }
             }else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
@@ -151,9 +150,9 @@ public class PrinterListPresenter extends BasePresenter<PrinterListView> impleme
                         getView().showToast(mActivity.getString(R.string.paired));
 
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    saveDeviceInfo(device);
+//                    saveDeviceInfo(device);
                 } else if (state == BluetoothDevice.BOND_NONE && prevState == BluetoothDevice.BOND_BONDED){
-                    saveDeviceInfo(null);
+//                    saveDeviceInfo(null);
                 }
 
 
@@ -161,16 +160,15 @@ public class PrinterListPresenter extends BasePresenter<PrinterListView> impleme
         }
     };
 
-    public void saveDeviceInfo(BluetoothDevice device){
-        SharedPreferences.Editor prefEditor = preferences.edit();
-        prefEditor.putString(mActivity.getString(R.string.pref_general_printer), device==null?"":device.getName());
-        prefEditor.putString(mActivity.getString(R.string.pref_general_printer_address), device==null?"":device.getAddress());
-        prefEditor.commit();
-        getView().refreshAdapter();
-    }
 
     public String getActivePrinter() {
         String prefKey = mActivity.getString(R.string.pref_general_printer_address);
         return preferences.getString(prefKey,"");
+    }
+
+    public List<BluetoothDevice> getDeviceList() {
+        if (mDeviceList == null)
+            mDeviceList = new ArrayList<>();
+        return mDeviceList;
     }
 }

@@ -27,16 +27,13 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 /**
  * Created by baris on 9.03.2017.
  */
 
-public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements PermissionCallback {
+public class BluetoothProvider /*extends AsyncTask<Void, Void, Void>*/ implements PermissionCallback {
     //region Private
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private BluetoothAdapter mBluetoothAdapter;
@@ -65,6 +62,9 @@ public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements Pe
         this.callback = callback;
 
         getDeviceAddress();
+    }
+
+    public BluetoothProvider() {
     }
 
     public BluetoothProvider connect(){
@@ -110,11 +110,8 @@ public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements Pe
                 .show();
     }
 
-    public BluetoothProvider openPrinterListActivity() {
-        Intent newActivity = new Intent(mActivity.getApplicationContext(), PrinterListActivity.class);
-        mActivity.startActivity(newActivity);
-
-        return this;
+    public Intent openPrinterListActivity() {
+        return new Intent(mActivity.getApplicationContext(), PrinterListActivity.class);
     }
 
     private void loadAdapter() {
@@ -251,12 +248,12 @@ public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements Pe
         return this;
     }
 
-    @Override
-    protected Void doInBackground(Void... params) {
-        printProcess();
-
-        return null;
-    }
+//    @Override
+//    protected Void doInBackground(Void... params) {
+//        printProcess();
+//
+//        return null;
+//    }
 
     private void printProcess() {
         if (haveError)
@@ -274,21 +271,18 @@ public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements Pe
         try {
             for(int i=0;i<copyCount;i++) {
                 outputStream.write(printingByte);
-
-                if(copyCount>1)
-                    setBreakLine(2);
-
-                Thread.sleep(1000);
+                setBreakLine(2);
+                if(copyCount>1) {
+                    Thread.sleep(printingByte.length * 10);
+                }else
+                    Thread.sleep(1000);
             }
-
             outputStream.flush();
+            printingByte = new byte[0];
         } catch (IOException e) {
             if(e.getMessage() != null)
                 sendError(e.getMessage(), true);
-        } catch (InterruptedException e) {
-            if(e.getMessage() != null)
-                sendError(e.getMessage(), true);
-        }catch (Exception e){
+        } catch (Exception e){
             if(e.getMessage() != null)
                 sendError(e.getMessage(), true);
         }
@@ -298,11 +292,11 @@ public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements Pe
         printingByte = UtilsGeneral.bytePush(printingByte,byteItem);
     }
 
-    @Override
-    protected void onPostExecute(Void result) {
-        super.onPostExecute(result);
-        onDestroy();
-    }
+//    @Override
+//    protected void onPostExecute(Void result) {
+//        super.onPostExecute(result);
+//        onDestroy();
+//    }
 
     public BluetoothProvider setImage(Bitmap bitmap){
         this.imageBitmap = bitmap;
@@ -369,4 +363,19 @@ public class BluetoothProvider extends AsyncTask<Void, Void, Void> implements Pe
         }
     }
 
+    public void setCallback(BluetoothCallback callback) {
+        this.callback = callback;
+    }
+
+
+    public void setActivity(Activity mActivity) {
+        this.mActivity = mActivity;
+        getDeviceAddress();
+    }
+
+    public void execute() {
+        printProcess();
+
+        onDestroy();
+    }
 }

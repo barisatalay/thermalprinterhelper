@@ -19,7 +19,7 @@ public class UtilsHtml {
 
         StringBuffer stringBuffer = new StringBuffer();
         String seperatorItem = "<br />";
-        String Temp = oldStr.replace("<br/>",seperatorItem);
+        String Temp = oldStr.replaceAll("<br/>",seperatorItem);
 
         if(Temp.indexOf(seperatorItem) > -1){
             while(Temp.indexOf(seperatorItem) > -1){
