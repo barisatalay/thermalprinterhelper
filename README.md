@@ -1,4 +1,11 @@
 [![](https://jitpack.io/v/barisatalay/thermalprinterhelper.svg)](https://jitpack.io/#barisatalay/thermalprinterhelper)
+[![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-Thermal%20Printer%20Helper-green.svg?style=flat )]( https://android-arsenal.com/details/1/7726 )
+<a href="https://opensource.org/licenses/MIT"><img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg"/></a>
+![](https://img.shields.io/github/languages/count/barisatalay/thermalprinterhelper.svg)
+![](https://img.shields.io/github/repo-size/barisatalay/thermalprinterhelper.svg)
+![](https://img.shields.io/github/last-commit/barisatalay/thermalprinterhelper.svg)
+![](https://img.shields.io/github/followers/barisatalay.svg?style=social)
+![](https://img.shields.io/github/stars/barisatalay/thermalprinterhelper.svg?style=social)
 
 # Thermal Printer Helper
 My aim is to use the simplest way to print from a Bluetooth printer.
